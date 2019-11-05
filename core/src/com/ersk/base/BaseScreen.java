@@ -52,19 +52,19 @@ public class BaseScreen implements Screen, InputProcessor {
     //=======
     @Override
     public boolean keyDown(int keycode) {
-        System.out.println("keyDown");
+//        System.out.println("keyDown");
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        System.out.println("keyUp");
+//        System.out.println("keyUp");
         return false;
     }
 
     @Override
     public boolean keyTyped(char character) {
-        System.out.println("keyTyped " + character);
+//        System.out.println("keyTyped " + character);
         return false;
     }
 
@@ -77,13 +77,13 @@ public class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        System.out.println("touchUp");
+//        System.out.println("touchUp");
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        System.out.println("touchDragged");
+//        System.out.println("touchDragged");
         return false;
     }
 

@@ -11,7 +11,7 @@ public class MenuScreen extends BaseScreen {
     Texture img;
     private Vector2 pos;
     private Vector2 v1, v2;
-    float x, y;
+    float x, y, dis;
     int count;
 
     @Override
@@ -23,7 +23,8 @@ public class MenuScreen extends BaseScreen {
         v2 = new Vector2(); // вектор скорости для стрелок
         x = 0; // вспомогательные переменные
         y = 0;
-        count = -1;
+        dis = 0;
+        count = 0;
     }
 
     @Override
@@ -39,13 +40,14 @@ public class MenuScreen extends BaseScreen {
                 pos.y >= 0 && (pos.y + img.getHeight()) <= Gdx.graphics.getHeight()){
 
             // движение вызываемое нажатием на экран, (по левому нижнему углу)
-            if (count < 100) {
+            if (count < dis) {
                 pos.add(v1); // меняем позицию картинки
                 count++; // считаем шаги или сколько раз должны прибавить v, чтобы изменить позицию картинки
+
                 if (pos.x < 0 || (pos.x + img.getWidth()) > Gdx.graphics.getWidth() ||
                         pos.y < 0 || (pos.y + img.getHeight()) > Gdx.graphics.getHeight()){
                     pos.sub(v1);
-                    count = 100; // если вышли за границы экрана, прекращаем движение. (Появляется погрешность в координатах)
+                    count = (int)dis; // если вышли за границы экрана, прекращаем движение. (Появляется погрешность в координатах)
                 }
             }
 
@@ -73,7 +75,8 @@ public class MenuScreen extends BaseScreen {
         x = screenX-pos.x;  // разность координат по х
         y = (Gdx.graphics.getHeight()-screenY)-pos.y;  // разность координат по у
         if (x < (Gdx.graphics.getWidth()-img.getWidth()) && y < (Gdx.graphics.getHeight()-img.getHeight())){
-            v1.set(x/100,y/100);  // задаем скорость движения (100 шагов до точки touchDown)
+            dis = (float) Math.sqrt(x*x + y*y); // расстояние
+            v1.set(x/dis, y/dis);  // задаем скорость движения
         }
         return super.touchDown(screenX, screenY, pointer, button);
     }
