@@ -29,7 +29,7 @@ public class MenuScreen extends BaseScreen {
         logo = new Logo(new TextureRegion(img));
         logo.setHeightProportion(0.3f);
 
-        background = new Background(new TextureRegion(bg)); //  создали спрайт из текстур региона
+        background = new Background(new TextureRegion(bg));
     }
 
     @Override

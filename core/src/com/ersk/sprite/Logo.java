@@ -16,8 +16,8 @@ public class Logo extends Sprite {
         super(region);
 
         posTouch = new Vector2();
-        buffVector = new Vector2(); // буфер
-        v = new Vector2();     // вектор скорости
+        buffVector = new Vector2();
+        v = new Vector2();
     }
 
     @Override
@@ -25,7 +25,7 @@ public class Logo extends Sprite {
 
         posTouch.set(touch);
         v.set(posTouch.cpy().sub(getPos()));
-        v.setLength(V_LEN);                  // вектору v задали длину равную  V_LEN = 0.01f
+        v.setLength(V_LEN);
         return false;
     }
 
