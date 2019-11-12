@@ -23,10 +23,6 @@ public class Rect {
         this.halfWidth = halfWidth;
         this.halfHeight = halfHeight;
     }
-    // метод для получения координат центра прямоугольника
-    public Vector2 getPos(){
-        return pos;
-    }
 
     public float getLeft() {
         return pos.x - halfWidth;

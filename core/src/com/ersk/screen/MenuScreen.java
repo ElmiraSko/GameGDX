@@ -45,9 +45,9 @@ public class MenuScreen extends BaseScreen {
         batch.end();
 
         logo.buffVector.set(logo.posTouch);
-        if (logo.buffVector.sub(logo.getPos()).len() > Logo.V_LEN) {
-            logo.getPos().add(logo.v);
-        } else logo.getPos().set(logo.posTouch);
+        if (logo.buffVector.sub(logo.pos).len() > Logo.V_LEN) {
+            logo.pos.add(logo.v);
+        } else logo.pos.set(logo.posTouch);
     }
 
     @Override
@@ -61,6 +61,7 @@ public class MenuScreen extends BaseScreen {
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
+        logo.resize(worldBounds);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.ersk.sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.ersk.base.Sprite;
+import com.ersk.math.Rect;
 
 
 public class Logo extends Sprite {
@@ -21,10 +22,16 @@ public class Logo extends Sprite {
     }
 
     @Override
+    public void resize(Rect worldBounds) {
+        super.resize(worldBounds);
+        this.pos.set(worldBounds.pos);
+    }
+
+    @Override
     public boolean touchDown(Vector2 touch, int pointer) {
 
         posTouch.set(touch);
-        v.set(posTouch.cpy().sub(getPos()));
+        v.set(posTouch.cpy().sub(pos));
         v.setLength(V_LEN);
         return false;
     }
