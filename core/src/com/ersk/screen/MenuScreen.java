@@ -37,11 +37,11 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         super.show();
         bg = new Texture("textures/Stars.png");
-        background = new Background(new TextureRegion(bg));
+        background = new Background(new TextureRegion(bg));    // фон
         atlas = new TextureAtlas("textures/menuAtlas.tpack");
         stars = new Star[256];
         for (int i = 0; i < STAR_COUNT; i++) {
-            stars[i] = new Star(atlas);
+            stars[i] = new Star(atlas); // создание звезд
         }
         buttonExit = new ButtonExit(atlas);
         buttonPlay = new ButtonPlay(atlas, game);

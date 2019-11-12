@@ -1,10 +1,10 @@
 package com.ersk.base;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.ersk.math.Rect;
-
 
 public class Sprite extends Rect {
 
@@ -19,7 +19,7 @@ public class Sprite extends Rect {
         }
         regions = new TextureRegion[1];
         regions[0] = region;
-    }
+        }
 
     public void draw(SpriteBatch batch) {
         batch.draw(

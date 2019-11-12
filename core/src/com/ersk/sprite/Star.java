@@ -13,29 +13,29 @@ public class Star extends Sprite {
     private Vector2 v = new Vector2();
     private Rect worldBounds;
 
-    public Star(TextureAtlas atlas) {
-        super(atlas.findRegion("star"));
-        setHeightProportion(Rnd.nextFloat(0.01f, 0.0065f));
-        float vy = Rnd.nextFloat(-0.005f, -0.001f);
-        float vx = Rnd.nextFloat(-0.0005f, 0.0005f);
-        v.set(vx, vy);
+    public Star(TextureAtlas atlas) {                //конструктор спрайта Star
+        super(atlas.findRegion("star"));          //atlas - атлас, откуда берется изображение
+        setHeightProportion(Rnd.nextFloat(0.01f, 0.0065f));  // высота звезды-спрайта
+        float vy = Rnd.nextFloat(-0.005f, -0.001f);           // координата по х
+        float vx = Rnd.nextFloat(-0.0005f, 0.0005f);        // координата по у
+        v.set(vx, vy);                                        // скорость передвижения
     }
 
     @Override
     public void resize(Rect worldBounds) {
         this.worldBounds = worldBounds;
-        float posX = Rnd.nextFloat(worldBounds.getLeft(), worldBounds.getRight());
+        float posX = Rnd.nextFloat(worldBounds.getLeft(), worldBounds.getRight());  // вычисляем рандоно координаты
         float posY = Rnd.nextFloat(worldBounds.getBottom(), worldBounds.getTop());
-        pos.set(posX, posY);
+        pos.set(posX, posY);                // разместили центр спрайта в точке (posX, posY), возможно, здесь он появляется для дальнейшего движения
     }
 
     @Override
-    public void update(float delta) {
-        pos.add(v);
-        checkBounds();
+    public void update(float delta) {  // обновление свойств спрайта
+        pos.add(v); // позиция спрайта, его центр, прибавлением вектора v
+        checkBounds(); // метод проверяет пересечение с границей экрана
     }
 
-    private void checkBounds() {
+    private void checkBounds() {  // если спрайт вышел за границу экрана
         if (getRight() < worldBounds.getLeft()) setLeft(worldBounds.getRight());
         if (getLeft() > worldBounds.getRight()) setRight(worldBounds.getLeft());
         if (getTop() < worldBounds.getBottom()) setBottom(worldBounds.getTop());
