@@ -28,8 +28,15 @@ public class Logo extends Sprite {
     }
 
     @Override
-    public boolean touchDown(Vector2 touch, int pointer) {
+    public void update(float delta) {
+        buffVector.set(posTouch);
+        if (buffVector.sub(pos).len() > V_LEN) {
+            pos.add(v);
+        } else pos.set(posTouch);
+    }
 
+    @Override
+    public boolean touchDown(Vector2 touch, int pointer) {
         posTouch.set(touch);
         v.set(posTouch.cpy().sub(pos));
         v.setLength(V_LEN);

@@ -28,14 +28,20 @@ public class MenuScreen extends BaseScreen {
 
         logo = new Logo(new TextureRegion(img));
         logo.setHeightProportion(0.3f);
-
         background = new Background(new TextureRegion(bg));
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
+        update(delta);
+        draw();
+    }
 
+    public void update(float delta){
+        logo.update(delta);
+    }
+    public void draw(){
         Gdx.gl.glClearColor(1, 1, 0.45f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -43,11 +49,6 @@ public class MenuScreen extends BaseScreen {
         background.draw(batch);
         logo.draw(batch);
         batch.end();
-
-        logo.buffVector.set(logo.posTouch);
-        if (logo.buffVector.sub(logo.pos).len() > Logo.V_LEN) {
-            logo.pos.add(logo.v);
-        } else logo.pos.set(logo.posTouch);
     }
 
     @Override
