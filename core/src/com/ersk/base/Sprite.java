@@ -19,7 +19,21 @@ public class Sprite extends Rect {
         }
         regions = new TextureRegion[1];
         regions[0] = region;
+    }
+// дополнительный конструктор
+    public Sprite(TextureRegion region, int countTexRegion, int index){
+        if (region == null) {
+            throw new NullPointerException("region is null");
         }
+        regions = new TextureRegion[countTexRegion];  // массив подрегионов
+        for (int i = 0; i < countTexRegion; i++)
+            regions[i] = new TextureRegion(region, i*region.getRegionWidth()/2, 0, region.getRegionWidth()/2, region.getRegionHeight());
+        frame = index; // устанавливаем индекс текущего региона
+    }
+// метод позволяет изменять индекс текущего региона
+    public void  setIndex(int index){
+        frame = index;
+    }
 
     public void draw(SpriteBatch batch) {
         batch.draw(

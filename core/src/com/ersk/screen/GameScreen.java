@@ -32,7 +32,7 @@ public class GameScreen extends BaseScreen {
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
         // создаем спрайт корабля (указываем, что 2 изображения)
-        ship = new SpaceShip(atlas, 2);
+        ship = new SpaceShip(atlas, 2, 0);
         stars = new Star[STAR_COUNT];
         for (int i = 0; i < STAR_COUNT; i++) {
             stars[i] = new Star(atlas); // создание звезд
@@ -51,24 +51,24 @@ public class GameScreen extends BaseScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
-        background.draw(batch); // рисуем фон
+        background.draw(batch);
+        ship.draw(batch);
 
-        ship.draw(batch, 0);       // рисуем 1-й корабль
-
-        for (Star star : stars) {         // рисуем звезды
+        for (Star star : stars) {
             star.draw(batch);
         }
         batch.end();
     }
+
     private void update(float delta) {  // обновление экрана
-        for (Star star : stars) {  //  обновление звезд
+        for (Star star : stars) {
             star.update(delta);
         }
         ship.update(delta);   // обновление корабля
     }
 
     @Override
-    public void resize(Rect worldBounds) {  //
+    public void resize(Rect worldBounds) {
         background.resize(worldBounds);
         ship.resize(worldBounds);
         for (Star star : stars) {

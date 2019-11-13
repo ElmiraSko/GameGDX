@@ -18,42 +18,16 @@ public class SpaceShip extends Sprite {
     private TextureRegion[] textureRegions;
 
 
-    public SpaceShip(TextureAtlas atlas, int count) { //конструктор спрайта корабля
-        super(atlas.findRegion("main_ship")); // atlas - атлас, откуда берется изображение
-        setHeightProportion(0.2f);                 // высота спрайта
-
-        getShipRegions(regions[frame], count);  // получаем массив из count картинок из полученного TextureRegion
-
-        posTouch = new Vector2();  //  вектор с координатами касания
-        buffVector = new Vector2(); // буфер, вспомогательный вектор
-    }
-
-    private TextureRegion[] getShipRegions(TextureRegion region, int count){
-        textureRegions = new TextureRegion[count];
-        if (count >= 1){
-            for (int i = 0; i < count; i++)
-                textureRegions[i] = new TextureRegion(region, i*region.getRegionWidth()/2, 0, region.getRegionWidth()/2, region.getRegionHeight());
-        }
-        return textureRegions;
-    }
-    private TextureRegion getShipForIndex(int index){ // получение корабля по его индексу из массива
-        return textureRegions[index];
-    }
-
-    public void draw(SpriteBatch batch, int index) {  // дополнительно указываем, какой карабль нужно отобразить
-        batch.draw(
-                getShipForIndex(index), // текстура корабля
-                getLeft(), getBottom(),   // левый нижний угол - ?
-                halfWidth, halfHeight,
-                getWidth()/2, getHeight(),     //  ширина и высота спрайта
-                scale, scale,
-                angle
-        );
+    public SpaceShip(TextureAtlas atlas, int count, int index) {
+        super(atlas.findRegion("main_ship"), count, index);
+        setHeightProportion(0.2f);
+        posTouch = new Vector2();
+        buffVector = new Vector2();
     }
 
     @Override
-    public void resize(Rect worldBounds) { // -?
-        this.worldBounds = worldBounds;  // задади -?
+    public void resize(Rect worldBounds) {
+        this.worldBounds = worldBounds;
         pos.set(0.07f, worldBounds.getBottom() + 0.15f);  //  позиция спрайта относительно экрана
     }
 
@@ -62,7 +36,6 @@ public class SpaceShip extends Sprite {
         buffVector.set(posTouch);
         if (buffVector.sub(pos).len() > V_LEN) {
             pos.add(v);
-
         } else pos.set(posTouch);
 
         checkBounds(); // метод проверяет пересечение с границей экрана
