@@ -1,8 +1,7 @@
 package com.ersk.sprite;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.ersk.base.Sprite;
 import com.ersk.math.Rect;
@@ -13,10 +12,8 @@ public class SpaceShip extends Sprite {
     public Vector2 buffVector;
     public static float V_LEN = 0.01f;
     private Vector2 v = new Vector2();
+    private boolean flag = false; // если false, то работает keyDown, если true, то touchDown
     private Rect worldBounds;
-
-    private TextureRegion[] textureRegions;
-
 
     public SpaceShip(TextureAtlas atlas, int count, int index) {
         super(atlas.findRegion("main_ship"), count, index);
@@ -33,11 +30,14 @@ public class SpaceShip extends Sprite {
 
     @Override
     public void update(float delta) {  // обновление свойств спрайта
-        buffVector.set(posTouch);
-        if (buffVector.sub(pos).len() > V_LEN) {
+        if (flag){
+            buffVector.set(posTouch);
+            if (buffVector.sub(pos).len() > V_LEN) {
+                pos.add(v);
+            } else pos.set(posTouch);
+        }else {
             pos.add(v);
-        } else pos.set(posTouch);
-
+        }
         checkBounds(); // метод проверяет пересечение с границей экрана
     }
 
@@ -50,9 +50,29 @@ public class SpaceShip extends Sprite {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        posTouch.set(touch);                 // в вектор posTouch задали координаты клика
+        flag = true;
+        // в векторе posTouch меняется только значение по х
+        posTouch.set(touch.x, worldBounds.getBottom() + 0.15f);
         v.set(posTouch.cpy().sub(pos));
-        v.setLength(V_LEN);                  // вектору v задали длину равную  V_LEN = 0.01f
+        v.setLength(V_LEN);  // вектору v задали длину равную  V_LEN = 0.01f
+        return false;
+    }
+
+    public boolean keyDown(int keycode){
+        flag = false;
+        v.setLength(0f); // обнулили
+
+        if (keycode == Input.Keys.LEFT){
+            v.set(-V_LEN, 0);
+        }
+        if (keycode == Input.Keys.RIGHT){
+            v.set(V_LEN, 0);
+        }
+        return false;
+    }
+
+    public boolean keyUp(int keycode){
+        v.set(0, 0); // обнуляем вектор скорости
         return false;
     }
 }

@@ -92,19 +92,19 @@ public class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        System.out.println("keyDown keycode = " + keycode);
+        System.out.println("keyDown keycode = " + keycode + "  из класса BaseScreen");
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        System.out.println("keyUp keycode = " + keycode);
+        System.out.println("keyUp keycode = " + keycode  + "  из класса BaseScreen");
         return false;
     }
 
     @Override
     public boolean keyTyped(char character) {
-        System.out.println("keyTyped character = " + character);
+        System.out.println("keyTyped character = " + character  + "  из класса BaseScreen");
         return false;
     }
 

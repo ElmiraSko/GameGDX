@@ -78,12 +78,14 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
-        return super.keyDown(keycode);
+        ship.keyDown(keycode);
+        return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        return super.keyUp(keycode);
+        ship.keyUp(keycode);
+        return false;
     }
 
     @Override
