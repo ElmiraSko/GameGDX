@@ -52,11 +52,19 @@ public class GameScreen extends BaseScreen {
 
         batch.begin();
         background.draw(batch); // рисуем фон
+
         ship.draw(batch, 0);       // рисуем 1-й корабль
+
         for (Star star : stars) {         // рисуем звезды
             star.draw(batch);
         }
         batch.end();
+    }
+    private void update(float delta) {  // обновление экрана
+        for (Star star : stars) {  //  обновление звезд
+            star.update(delta);
+        }
+        ship.update(delta);   // обновление корабля
     }
 
     @Override
@@ -68,11 +76,6 @@ public class GameScreen extends BaseScreen {
         }
     }
 
-    private void update(float delta) {  // обновление
-        for (Star star : stars) {
-            star.update(delta);
-        }
-    }
     @Override
     public boolean keyDown(int keycode) {
         return super.keyDown(keycode);
@@ -85,7 +88,8 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        return super.touchDown(touch, pointer);
+        ship.touchDown(touch, pointer);
+        return false;
     }
 
     @Override
@@ -102,4 +106,3 @@ public class GameScreen extends BaseScreen {
     }
 
 }
-

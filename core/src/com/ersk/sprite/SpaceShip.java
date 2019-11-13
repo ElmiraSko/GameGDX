@@ -9,7 +9,10 @@ import com.ersk.math.Rect;
 
 public class SpaceShip extends Sprite {
 
-    private Vector2 v = new Vector2(); // вектор скорости
+    public Vector2 posTouch;
+    public Vector2 buffVector;
+    public static float V_LEN = 0.01f;
+    private Vector2 v = new Vector2();
     private Rect worldBounds;
 
     private TextureRegion[] textureRegions;
@@ -18,7 +21,11 @@ public class SpaceShip extends Sprite {
     public SpaceShip(TextureAtlas atlas, int count) { //конструктор спрайта корабля
         super(atlas.findRegion("main_ship")); // atlas - атлас, откуда берется изображение
         setHeightProportion(0.2f);                 // высота спрайта
+
         getShipRegions(regions[frame], count);  // получаем массив из count картинок из полученного TextureRegion
+
+        posTouch = new Vector2();  //  вектор с координатами касания
+        buffVector = new Vector2(); // буфер, вспомогательный вектор
     }
 
     private TextureRegion[] getShipRegions(TextureRegion region, int count){
@@ -36,7 +43,7 @@ public class SpaceShip extends Sprite {
     public void draw(SpriteBatch batch, int index) {  // дополнительно указываем, какой карабль нужно отобразить
         batch.draw(
                 getShipForIndex(index), // текстура корабля
-                getLeft(), getBottom(),   // левый нижний угол ?
+                getLeft(), getBottom(),   // левый нижний угол - ?
                 halfWidth, halfHeight,
                 getWidth()/2, getHeight(),     //  ширина и высота спрайта
                 scale, scale,
@@ -45,14 +52,19 @@ public class SpaceShip extends Sprite {
     }
 
     @Override
-    public void resize(Rect worldBounds) { // ?
-        this.worldBounds = worldBounds;  // задади ?
-        pos.set(0.07f, worldBounds.getBottom() + 0.15f);
+    public void resize(Rect worldBounds) { // -?
+        this.worldBounds = worldBounds;  // задади -?
+        pos.set(0.07f, worldBounds.getBottom() + 0.15f);  //  позиция спрайта относительно экрана
     }
 
     @Override
     public void update(float delta) {  // обновление свойств спрайта
-        pos.add(v); // позиция спрайта, его центр, изменяем его значения прибавлением вектора v
+        buffVector.set(posTouch);
+        if (buffVector.sub(pos).len() > V_LEN) {
+            pos.add(v);
+
+        } else pos.set(posTouch);
+
         checkBounds(); // метод проверяет пересечение с границей экрана
     }
 
@@ -65,6 +77,9 @@ public class SpaceShip extends Sprite {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        return super.touchDown(touch, pointer);
+        posTouch.set(touch);                 // в вектор posTouch задали координаты клика
+        v.set(posTouch.cpy().sub(pos));
+        v.setLength(V_LEN);                  // вектору v задали длину равную  V_LEN = 0.01f
+        return false;
     }
 }

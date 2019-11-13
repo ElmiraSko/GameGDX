@@ -8,7 +8,7 @@ public abstract class ScaledTouchUpButton extends Sprite {
     private int pointer;
     private boolean pressed;
 
-    public ScaledTouchUpButton(TextureRegion region) {  // конструктор
+    public ScaledTouchUpButton(TextureRegion region) {
         super(region);
     }
 
