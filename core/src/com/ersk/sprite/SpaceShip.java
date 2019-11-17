@@ -2,77 +2,154 @@ package com.ersk.sprite;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.ersk.base.Sprite;
 import com.ersk.math.Rect;
+import com.ersk.pool.BulletPool;
 
 public class SpaceShip extends Sprite {
 
-    public Vector2 posTouch;
-    public Vector2 buffVector;
-    public static float V_LEN = 0.01f;
-    private Vector2 v = new Vector2();
-    private boolean flag = false; // если false, то работает keyDown, если true, то touchDown
-    private Rect worldBounds;
+    private static final float BOTTOM_MARGIN = 0.05f;
+    private static final int INVALID_POINTER = -1;
 
-    public SpaceShip(TextureAtlas atlas, int count, int index) {
-        super(atlas.findRegion("main_ship"), count, index);
-        setHeightProportion(0.2f);
-        posTouch = new Vector2();
-        buffVector = new Vector2();
+    private final Vector2 v0 = new Vector2(0.5f, 0);
+    private final Vector2 v = new Vector2();
+
+    private Rect worldBounds;
+    private BulletPool bulletPool;
+    private TextureRegion bulletRegion;
+    private Vector2 bulletV = new Vector2(0, 0.5f);
+
+    private boolean pressedLeft;
+    private boolean pressedRight;
+
+    private int leftPointer = INVALID_POINTER;
+    private int rightPointer = INVALID_POINTER;
+
+    private final float reloadInterval = 0.2f; // промежуток между выстрелами
+    private float reloadTimer = 0f; // счетчик
+
+    public SpaceShip(TextureAtlas atlas, BulletPool bulletPool) {
+        super(atlas.findRegion("main_ship"), 1, 2, 2);
+        this.bulletPool = bulletPool;
+        bulletRegion = atlas.findRegion("bulletMainShip");
     }
 
     @Override
     public void resize(Rect worldBounds) {
         this.worldBounds = worldBounds;
-        pos.set(0.07f, worldBounds.getBottom() + 0.15f);  //  позиция спрайта относительно экрана
+        setHeightProportion(0.15f);
+        setBottom(worldBounds.getBottom() + BOTTOM_MARGIN);
     }
 
     @Override
-    public void update(float delta) {  // обновление свойств спрайта
-        if (flag){
-            buffVector.set(posTouch);
-            if (buffVector.sub(pos).len() > V_LEN) {
-                pos.add(v);
-            } else pos.set(posTouch);
-        }else {
-            pos.add(v);
+    public void update(float delta) {
+        reloadTimer += delta;
+        if (reloadTimer > reloadInterval) {
+            reloadTimer = 0f;
+            shoot();
         }
-        checkBounds(); // метод проверяет пересечение с границей экрана
+        pos.mulAdd(v, delta);
+        if (getRight() > worldBounds.getRight()) {
+            setRight(worldBounds.getRight());
+            stop();
+        }
+        if (getLeft() < worldBounds.getLeft()) {
+            setLeft(worldBounds.getLeft());
+            stop();
+        }
     }
 
-    private void checkBounds() {  // если спрайт вышел за границу экрана
-        if (getRight() < worldBounds.getLeft()) setLeft(worldBounds.getRight());
-        if (getLeft() > worldBounds.getRight()) setRight(worldBounds.getLeft());
-        if (getTop() < worldBounds.getBottom()) setBottom(worldBounds.getTop());
-        if (getBottom() > worldBounds.getTop()) setTop(worldBounds.getBottom());
+    public void keyDown(int keycode) {
+        switch (keycode) {
+            case Input.Keys.D:
+            case Input.Keys.RIGHT:
+                moveRight();
+                pressedRight = true;
+                break;
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                moveLeft();
+                pressedLeft = true;
+                break;
+            case Input.Keys.UP:
+                shoot();
+                break;
+        }
+    }
+
+    public void keyUp(int keycode) {
+        switch (keycode) {
+            case Input.Keys.D:
+            case Input.Keys.RIGHT:
+                pressedRight = false;
+                if (pressedLeft) {
+                    moveLeft();
+                } else {
+                    stop();
+                }
+                break;
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                pressedLeft = false;
+                if (pressedRight) {
+                    moveRight();
+                } else {
+                    stop();
+                }
+                break;
+        }
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        flag = true;
-        // в векторе posTouch меняется только значение по х
-        posTouch.set(touch.x, worldBounds.getBottom() + 0.15f);
-        v.set(posTouch.cpy().sub(pos));
-        v.setLength(V_LEN);  // вектору v задали длину равную  V_LEN = 0.01f
-        return false;
-    }
-
-    public boolean keyDown(int keycode){
-        flag = false;
-        v.setLength(0f); // обнулили
-
-        if (keycode == Input.Keys.LEFT){
-            v.set(-V_LEN, 0);
-        }
-        if (keycode == Input.Keys.RIGHT){
-            v.set(V_LEN, 0);
+        if (touch.x < worldBounds.pos.x) {
+            if (leftPointer != INVALID_POINTER) return false;
+            leftPointer = pointer;
+            moveLeft();
+        } else {
+            if (rightPointer != INVALID_POINTER) return false;
+            rightPointer = pointer;
+            moveRight();
         }
         return false;
     }
 
-    public boolean keyUp(int keycode){
-        v.set(0, 0); // обнуляем вектор скорости
+    @Override
+    public boolean touchUp(Vector2 touch, int pointer) {
+        if (pointer == leftPointer) {
+            leftPointer = INVALID_POINTER;
+            if (rightPointer != INVALID_POINTER) {
+                moveRight();
+            } else {
+                stop();
+            }
+        } else if (pointer == rightPointer) {
+            rightPointer = INVALID_POINTER;
+            if (leftPointer != INVALID_POINTER) {
+                moveLeft();
+            } else {
+                stop();
+            }
+        }
         return false;
+    }
+
+    private void moveRight() {
+        v.set(v0);
+    }
+
+    private void moveLeft() {
+        v.set(v0).rotate(180);
+    }
+
+    private void stop() {
+        v.setZero();
+    }
+
+    private void shoot() {   // выстрел
+        Bullet bullet = bulletPool.obtain(); // создание пули
+        bullet.set(this, bulletRegion, pos, bulletV, 0.01f, worldBounds, 1); // задаем свойства
     }
 }

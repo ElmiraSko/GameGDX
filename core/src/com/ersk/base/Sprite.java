@@ -1,10 +1,10 @@
 package com.ersk.base;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.ersk.math.Rect;
+import com.ersk.utils.Regions;
 
 public class Sprite extends Rect {
 
@@ -12,6 +12,11 @@ public class Sprite extends Rect {
     protected float scale = 1f;
     protected TextureRegion[] regions;
     protected int frame;
+    protected boolean destroyed; // неактивный спрайт, (за границами экрана, отрисовываться не будет)
+
+    public Sprite() {
+
+    }
 
     public Sprite(TextureRegion region) {
         if (region == null) {
@@ -21,18 +26,11 @@ public class Sprite extends Rect {
         regions[0] = region;
     }
 // дополнительный конструктор
-    public Sprite(TextureRegion region, int countTexRegion, int index){
+    public Sprite(TextureRegion region,  int rows, int cols, int frames){
         if (region == null) {
             throw new NullPointerException("region is null");
         }
-        regions = new TextureRegion[countTexRegion];  // массив подрегионов
-        for (int i = 0; i < countTexRegion; i++)
-            regions[i] = new TextureRegion(region, i*region.getRegionWidth()/2, 0, region.getRegionWidth()/2, region.getRegionHeight());
-        frame = index; // устанавливаем индекс текущего региона
-    }
-// метод позволяет изменять индекс текущего региона
-    public void  setIndex(int index){
-        frame = index;
+        this.regions = Regions.split(region, rows, cols, frames);
     }
 
     public void draw(SpriteBatch batch) {
@@ -61,15 +59,12 @@ public class Sprite extends Rect {
     }
 
     public boolean touchDown(Vector2 touch, int pointer) {
-        System.out.println("Метод touchDown в классе Sprite ");
         return false;
     }
 
     public boolean touchUp(Vector2 touch, int pointer) {
-        System.out.println("Метод touchUp в классе Sprite ");
         return false;
     }
-
 
     public float getAngle() {
         return angle;
@@ -86,4 +81,17 @@ public class Sprite extends Rect {
     public void setScale(float scale) {
         this.scale = scale;
     }
+
+    public void destroy() {  // делает спрайт не активным
+        destroyed = true;
+    }
+
+    public void flushDestroy() {
+        destroyed = false;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
 }
