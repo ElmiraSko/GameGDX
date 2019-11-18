@@ -5,15 +5,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SpritesPool<T extends Sprite> { // пул объектов
+public abstract class SpritesPool<T extends Sprite> {
 
-    protected final List<T> activeObjects = new ArrayList<>(); // активные
+    protected final List<T> activeObjects = new ArrayList<>();
 
-    protected final List<T> freeObjects = new ArrayList<>(); // неактивные объекты
+    protected final List<T> freeObjects = new ArrayList<>();
 
-    protected abstract T newObject(); // создание объекта типа Т
+    protected abstract T newObject();
 
-    public T obtain() {  // вытаскиваем объект из пула
+    public T obtain() {
         T object;
         if (freeObjects.isEmpty()) {
             object = newObject();
@@ -63,4 +63,3 @@ public abstract class SpritesPool<T extends Sprite> { // пул объектов
         freeObjects.clear();
     }
 }
-

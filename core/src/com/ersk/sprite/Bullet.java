@@ -11,7 +11,7 @@ public class Bullet extends Sprite {
     private Rect worldBounds;
 
     private final Vector2 v = new Vector2();
-    private int damage;  // размер урона от пули
+    private int damage;
     private Sprite owner;
 
     public Bullet() {
@@ -19,13 +19,13 @@ public class Bullet extends Sprite {
     }
 
     public void set(
-            Sprite owner, // владелец пули
-            TextureRegion region, // регион для отрисовки
-            Vector2 pos0,  //  начальная розиция пули
-            Vector2 v0,  // скорость
-            float height,    // размер пули в виде ее высоты
-            Rect worldBounds,  //
-            int damage    //
+            Sprite owner,
+            TextureRegion region,
+            Vector2 pos0,
+            Vector2 v0,
+            float height,
+            Rect worldBounds,
+            int damage
     ) {
         this.owner = owner;
         this.regions[0] = region;
@@ -38,9 +38,9 @@ public class Bullet extends Sprite {
 
     @Override
     public void update(float delta) {
-        pos.mulAdd(v, delta);              // чтоб двигалась
+        pos.mulAdd(v, delta);
         if (isOutside(worldBounds)) {
-            destroy();    // если вышла за границы экрана, то неактивна
+            destroy();
         }
     }
 
@@ -52,4 +52,3 @@ public class Bullet extends Sprite {
         return owner;
     }
 }
-

@@ -1,12 +1,10 @@
 package com.ersk.sprite;
 
-
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.ersk.base.Sprite;
 import com.ersk.math.Rect;
 import com.ersk.math.Rnd;
-
 
 public class Star extends Sprite {
 
@@ -24,14 +22,14 @@ public class Star extends Sprite {
     @Override
     public void resize(Rect worldBounds) {
         this.worldBounds = worldBounds;
-        float posX = Rnd.nextFloat(worldBounds.getLeft(), worldBounds.getRight());  // вычисляем рандоно координаты
+        float posX = Rnd.nextFloat(worldBounds.getLeft(), worldBounds.getRight());  // вычисляем рандомно координаты
         float posY = Rnd.nextFloat(worldBounds.getBottom(), worldBounds.getTop());
         pos.set(posX, posY);                // разместили центр спрайта в точке (posX, posY), возможно, здесь он появляется для дальнейшего движения
     }
 
     @Override
     public void update(float delta) {  // обновление свойств спрайта
-        pos.add(v); // позиция спрайта, его центр, прибавлением вектора v
+        pos.add(v); // позиция спрайта
         checkBounds(); // метод проверяет пересечение с границей экрана
     }
 
@@ -42,4 +40,3 @@ public class Star extends Sprite {
         if (getBottom() > worldBounds.getTop()) setTop(worldBounds.getBottom());
     }
 }
-

@@ -1,6 +1,7 @@
 package com.ersk.sprite;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -18,7 +19,7 @@ public class SpaceShip extends Sprite {
 
     private Rect worldBounds;
     private BulletPool bulletPool;
-    private TextureRegion bulletRegion;
+    private TextureRegion bulletRegion; // картинка пули
     private Vector2 bulletV = new Vector2(0, 0.5f);
 
     private boolean pressedLeft;
@@ -30,10 +31,13 @@ public class SpaceShip extends Sprite {
     private final float reloadInterval = 0.2f; // промежуток между выстрелами
     private float reloadTimer = 0f; // счетчик
 
-    public SpaceShip(TextureAtlas atlas, BulletPool bulletPool) {
+    Sound sound;
+
+    public SpaceShip(TextureAtlas atlas, BulletPool bulletPool, Sound sound) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
         bulletRegion = atlas.findRegion("bulletMainShip");
+        this.sound = sound;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class SpaceShip extends Sprite {
         reloadTimer += delta;
         if (reloadTimer > reloadInterval) {
             reloadTimer = 0f;
-            shoot();
+            shoot(); // выстрелы
         }
         pos.mulAdd(v, delta);
         if (getRight() > worldBounds.getRight()) {
@@ -148,8 +152,9 @@ public class SpaceShip extends Sprite {
         v.setZero();
     }
 
-    private void shoot() {   // выстрел
-        Bullet bullet = bulletPool.obtain(); // создание пули
-        bullet.set(this, bulletRegion, pos, bulletV, 0.01f, worldBounds, 1); // задаем свойства
+    private void shoot() {
+        Bullet bullet = bulletPool.obtain();
+        bullet.set(this, bulletRegion, pos, bulletV, 0.01f, worldBounds, 1);
+        sound.play(0.05f);
     }
 }

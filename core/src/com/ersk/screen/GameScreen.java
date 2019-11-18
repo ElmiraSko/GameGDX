@@ -1,6 +1,8 @@
 package com.ersk.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -9,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.ersk.base.BaseScreen;
 import com.ersk.math.Rect;
 import com.ersk.pool.BulletPool;
+import com.ersk.pool.EnemyPool;
 import com.ersk.sprite.Background;
 import com.ersk.sprite.SpaceShip;
 import com.ersk.sprite.Star;
@@ -25,6 +28,13 @@ public class GameScreen extends BaseScreen {
     private Star[] stars;
     private SpaceShip ship;
     private BulletPool bulletPool;
+    private EnemyPool enemyPool;
+    private Sound sound;
+    private Music music;
+
+    private final float reloadInterval = 3f; // промежуток между появлением
+    private float reloadTimer = 0f; // счетчик
+
 
     @Override
     public void show() {
@@ -32,13 +42,16 @@ public class GameScreen extends BaseScreen {
         bg = new Texture("textures/Stars.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
-        // создаем спрайт корабля
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));
+        music.play(); // воспроизведение
+        music.setVolume(1f);
         bulletPool = new BulletPool();
-        ship = new SpaceShip(atlas, bulletPool);
 
+        sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav")); // загрузка звука из файла
+        ship = new SpaceShip(atlas, bulletPool, sound);
         stars = new Star[STAR_COUNT];
         for (int i = 0; i < STAR_COUNT; i++) {
-            stars[i] = new Star(atlas); // создание звезд
+            stars[i] = new Star(atlas);
         }
     }
 
@@ -49,17 +62,25 @@ public class GameScreen extends BaseScreen {
         draw();
     }
 
-    private void update(float delta) {  // обновление экрана
+    private void update(float delta) {
+        reloadTimer += delta;
+        if (reloadTimer > reloadInterval) {
+            reloadTimer = 0f;
+            enemyPool.obtain();
+        }
         for (Star star : stars) {
             star.update(delta);
         }
-        ship.update(delta);   // обновление корабля
+        ship.update(delta);
         bulletPool.updateActiveSprites(delta);
+        enemyPool.updateActiveSprites(delta);
     }
 
     private void freeAllDestroyed() {
         bulletPool.freeAllDestroyedActiveSprites();
+        enemyPool.freeAllDestroyedActiveSprites();
     }
+
     private void draw() { //  для отрисовки
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -71,9 +92,9 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
+        enemyPool.drawActiveSprites(batch);
         batch.end();
     }
-
 
     @Override
     public void resize(Rect worldBounds) {
@@ -82,6 +103,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.resize(worldBounds);
         }
+        enemyPool = new EnemyPool(atlas, worldBounds);
     }
 
     @Override
@@ -108,12 +130,12 @@ public class GameScreen extends BaseScreen {
         return false;
     }
 
-
     @Override
     public void dispose() {
         bg.dispose();
         atlas.dispose();
+        sound.dispose();
+        music.dispose();
         super.dispose();
     }
-
 }

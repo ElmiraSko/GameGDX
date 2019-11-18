@@ -12,7 +12,7 @@ public class Sprite extends Rect {
     protected float scale = 1f;
     protected TextureRegion[] regions;
     protected int frame;
-    protected boolean destroyed; // неактивный спрайт, (за границами экрана, отрисовываться не будет)
+    protected boolean destroyed;
 
     public Sprite() {
 
@@ -82,7 +82,7 @@ public class Sprite extends Rect {
         this.scale = scale;
     }
 
-    public void destroy() {  // делает спрайт не активным
+    public void destroy() {
         destroyed = true;
     }
 
