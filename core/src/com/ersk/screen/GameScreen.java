@@ -2,7 +2,6 @@ package com.ersk.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -15,44 +14,44 @@ import com.ersk.pool.EnemyPool;
 import com.ersk.sprite.Background;
 import com.ersk.sprite.SpaceShip;
 import com.ersk.sprite.Star;
+import com.ersk.utils.EnemyEmitter;
 
 
 public class GameScreen extends BaseScreen {
 
-    private static final int STAR_COUNT = 30;
+    private static final int STAR_COUNT = 64;
 
     private Texture bg;
     private TextureAtlas atlas;
 
-    private Background background;
-    private Star[] stars;
-    private SpaceShip ship;
-    private BulletPool bulletPool;
-    private EnemyPool enemyPool;
-    private Sound sound;
     private Music music;
 
-    private final float reloadInterval = 3f; // промежуток между появлением
-    private float reloadTimer = 0f; // счетчик
+    private Background background;
+    private Star[] stars;
+    private SpaceShip mainShip;
 
+    private BulletPool bulletPool;
+    private EnemyPool enemyPool;
+
+    private EnemyEmitter enemyEmitter;
 
     @Override
     public void show() {
         super.show();
-        bg = new Texture("textures/Stars.png");
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));
+        bg = new Texture("textures/bg.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
-        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));
-        music.play(); // воспроизведение
-        music.setVolume(1f);
-        bulletPool = new BulletPool();
-
-        sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav")); // загрузка звука из файла
-        ship = new SpaceShip(atlas, bulletPool, sound);
         stars = new Star[STAR_COUNT];
         for (int i = 0; i < STAR_COUNT; i++) {
             stars[i] = new Star(atlas);
         }
+        bulletPool = new BulletPool();
+        enemyPool = new EnemyPool(worldBounds, bulletPool); // пул для кораблей, типа хранилища
+        mainShip = new SpaceShip(atlas, bulletPool);
+        enemyEmitter = new EnemyEmitter(enemyPool, atlas, worldBounds); // генератор кораблей
+        music.setLooping(true);
+        music.play();
     }
 
     @Override
@@ -62,18 +61,59 @@ public class GameScreen extends BaseScreen {
         draw();
     }
 
-    private void update(float delta) {
-        reloadTimer += delta;
-        if (reloadTimer > reloadInterval) {
-            reloadTimer = 0f;
-            enemyPool.obtain();
+    @Override
+    public void resize(Rect worldBounds) {
+        background.resize(worldBounds);
+        for (Star star : stars) {
+            star.resize(worldBounds);
         }
+        mainShip.resize(worldBounds);
+    }
+
+    @Override
+    public void dispose() {
+        bg.dispose();
+        atlas.dispose();
+        music.dispose();
+        mainShip.dispose();
+        bulletPool.dispose();
+        enemyPool.dispose();
+        enemyEmitter.dispose();
+        super.dispose();
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        mainShip.keyDown(keycode);
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        mainShip.keyUp(keycode);
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(Vector2 touch, int pointer) {
+        mainShip.touchDown(touch, pointer);
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(Vector2 touch, int pointer) {
+        mainShip.touchUp(touch, pointer);
+        return false;
+    }
+
+    private void update(float delta) {
         for (Star star : stars) {
             star.update(delta);
         }
-        ship.update(delta);
+        mainShip.update(delta);
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
+        enemyEmitter.generate(delta);
     }
 
     private void freeAllDestroyed() {
@@ -81,61 +121,17 @@ public class GameScreen extends BaseScreen {
         enemyPool.freeAllDestroyedActiveSprites();
     }
 
-    private void draw() { //  для отрисовки
+    private void draw() {
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         batch.begin();
         background.draw(batch);
-        ship.draw(batch);
-        bulletPool.drawActiveSprites(batch);
         for (Star star : stars) {
             star.draw(batch);
         }
+        mainShip.draw(batch);
+        bulletPool.drawActiveSprites(batch);
         enemyPool.drawActiveSprites(batch);
         batch.end();
-    }
-
-    @Override
-    public void resize(Rect worldBounds) {
-        background.resize(worldBounds);
-        ship.resize(worldBounds);
-        for (Star star : stars) {
-            star.resize(worldBounds);
-        }
-        enemyPool = new EnemyPool(atlas, worldBounds);
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        ship.keyDown(keycode);
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        ship.keyUp(keycode);
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(Vector2 touch, int pointer) {
-        ship.touchDown(touch, pointer);
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(Vector2 touch, int pointer) {
-        ship.touchUp(touch, pointer);
-        return false;
-    }
-
-    @Override
-    public void dispose() {
-        bg.dispose();
-        atlas.dispose();
-        sound.dispose();
-        music.dispose();
-        super.dispose();
     }
 }
