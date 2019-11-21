@@ -7,8 +7,10 @@ import com.ersk.base.Ship;
 import com.ersk.math.Rect;
 import com.ersk.pool.BulletPool;
 
-
 public class Enemy extends Ship {
+
+    private Vector2 temp = new Vector2(0, -0.2f); // временная скорость
+    private float i = 0;
 
     public Enemy(BulletPool bulletPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
@@ -18,7 +20,25 @@ public class Enemy extends Ship {
 
     @Override
     public void update(float delta) {
-        super.update(delta);
+        if (getTop() > worldBounds.getTop()){ //  пока весь корабль не появится на экране
+            this.v.set(temp);
+            super.update(delta);
+            i = 0;
+        }else{
+            this.v.set(v0);
+            while (i<=0){
+                shoot();
+                shoot();
+                i++;
+            }
+            super.update(delta);
+        }
+
+
+
+
+
+
         if (getBottom() < worldBounds.getBottom()) {
             destroy();
         }
@@ -46,6 +66,7 @@ public class Enemy extends Ship {
         this.sound = sound;
         setHeightProportion(height);
         this.hp = hp;
-        this.v.set(v0); //?
+
+       // this.v.set(v0);
     }
 }

@@ -16,14 +16,14 @@ public class EnemyEmitter {
     private static final float SMALL_BULLET_HEIGHT = 0.01f;
     private static final float SMALL_BULLET_VY = -0.3f;
     private static final int SMALL_BULLET_DAMAGE = 1;
-    private static final float SMALL_RELOAD_INTERVAL = 3f;
+    private static final float SMALL_RELOAD_INTERVAL = 2f;
     private static final float SMALL_HEIGHT = 0.1f;
     private static final int SMALL_HP = 1;
 
     private static final float MIDDLE_BULLET_HEIGHT = 0.02f;
     private static final float MIDDLE_BULLET_VY = -0.25f;
     private static final int MIDDLE_BULLET_DAMAGE = 5;
-    private static final float MIDDLE_RELOAD_INTERVAL = 4f;
+    private static final float MIDDLE_RELOAD_INTERVAL = 3f;
     private static final float MIDDLE_HEIGHT = 0.15f;
     private static final int MIDDLE_HP = 5;
 
@@ -61,21 +61,21 @@ public class EnemyEmitter {
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
     }
 
-    public void generate(float delta) { // каждые несколько секунд генерируется корабля
+    public void generate(float delta) { // каждые несколько секунд генерируется корабль
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
-            Enemy enemy = enemyPool.obtain();  // создается корабль
-            float type = (float) Math.random(); // тип зависит от рандомного числа type
+            Enemy enemy = enemyPool.obtain();
+            float type = (float) Math.random(); // тип зависит от случайного числа type
             if (type < 0.5f) {
                 enemy.set(
                         enemySmallRegions,
-                        enemySmallV,
+                        enemySmallV,   //  (0, -0.2f)
                         bulletRegion,
                         SMALL_BULLET_HEIGHT,
                         SMALL_BULLET_VY,
                         SMALL_BULLET_DAMAGE,
-                        SMALL_RELOAD_INTERVAL,
+                        SMALL_RELOAD_INTERVAL,  // SMALL_RELOAD_INTERVAL = 3f;
                         sound,
                         SMALL_HEIGHT,
                         SMALL_HP
@@ -100,9 +100,9 @@ public class EnemyEmitter {
                         bulletRegion,  // регион для пули
                         BIG_BULLET_HEIGHT, // размер пули
                         BIG_BULLET_VY,    //  скорость пули
-                        BIG_BULLET_DAMAGE,   // пули
+                        BIG_BULLET_DAMAGE,
                         BIG_RELOAD_INTERVAL,   // интервал для пули
-                        sound,   // звуки для пули
+                        sound,   // звук для пули
                         BIG_HEIGHT,  // высота корабля
                         BIG_HP    //
                 );

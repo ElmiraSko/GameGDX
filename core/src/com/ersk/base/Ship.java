@@ -9,7 +9,7 @@ import com.ersk.sprite.Bullet;
 
 public abstract class Ship extends Sprite {
 
-    protected final Vector2 v0 = new Vector2();
+    protected final Vector2 v0 = new Vector2(); // для корабля
     protected final Vector2 v = new Vector2();
 
     protected Rect worldBounds;
@@ -40,7 +40,6 @@ public abstract class Ship extends Sprite {
             reloadTimer = 0f;
             shoot();
         }
-
         pos.mulAdd(v, delta);
     }
 
