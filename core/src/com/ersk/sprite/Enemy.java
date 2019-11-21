@@ -20,24 +20,17 @@ public class Enemy extends Ship {
 
     @Override
     public void update(float delta) {
+
         if (getTop() > worldBounds.getTop()){ //  пока весь корабль не появится на экране
             this.v.set(temp);
+            reloadTimer += delta;
             super.update(delta);
-            i = 0;
         }else{
             this.v.set(v0);
-            while (i<=0){
-                shoot();
-                shoot();
-                i++;
-            }
+            reloadTimer += delta;
+            if (reloadTimer>reloadInterval){shoot();}
             super.update(delta);
         }
-
-
-
-
-
 
         if (getBottom() < worldBounds.getBottom()) {
             destroy();
