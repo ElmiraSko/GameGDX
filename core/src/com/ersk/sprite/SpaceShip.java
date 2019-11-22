@@ -8,6 +8,7 @@ import com.ersk.math.Rect;
 import com.ersk.pool.BulletPool;
 
 import com.badlogic.gdx.Gdx;
+import com.ersk.pool.ExplosionPool;
 
 public class SpaceShip extends Ship {
 
@@ -20,9 +21,10 @@ public class SpaceShip extends Ship {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
-    public SpaceShip(TextureAtlas atlas, BulletPool bulletPool) {
+    public SpaceShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         bulletRegion = atlas.findRegion("bulletMainShip");
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
         v0.set(0.5f, 0);
@@ -126,6 +128,15 @@ public class SpaceShip extends Ship {
             }
         }
         return false;
+    }
+
+    public boolean isBulletCollision(Rect bullet) {
+        return !(
+                bullet.getRight() < getLeft()
+                        || bullet.getLeft() > getRight()
+                        || bullet.getTop() < getBottom()
+                        || bullet.getBottom() > pos.y
+        );
     }
 
     public void dispose() {

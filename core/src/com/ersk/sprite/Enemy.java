@@ -6,32 +6,41 @@ import com.badlogic.gdx.math.Vector2;
 import com.ersk.base.Ship;
 import com.ersk.math.Rect;
 import com.ersk.pool.BulletPool;
+import com.ersk.pool.ExplosionPool;
+
 
 public class Enemy extends Ship {
 
-    private Vector2 temp = new Vector2(0, -0.3f); // временная скорость
+    private enum State { DESCENT, FIGHT }
 
-    public Enemy(BulletPool bulletPool, Rect worldBounds) {
+    private State state;
+
+    private Vector2 descentV = new Vector2(0, -0.15f);
+
+    public Enemy(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.worldBounds = worldBounds;
         this.v.set(v0);
     }
 
     @Override
     public void update(float delta) {
-        if (getTop() > worldBounds.getTop()){ //  пока весь корабль не появится на экране
-            this.pos.mulAdd(temp, delta);
-            reloadTimer = reloadInterval;
-        }else{
-            reloadTimer += delta;
-            if (reloadTimer > reloadInterval) {
+        super.update(delta);
+        switch (state) {
+            case DESCENT:
                 reloadTimer = 0f;
-                shoot();
-            }
-            pos.mulAdd(v, delta);
-        }
-        if (getBottom() < worldBounds.getBottom()) {
-            destroy();
+                if (getTop() <= worldBounds.getTop()) {
+                    v.set(v0);
+                    state = State.FIGHT;
+                    reloadTimer = reloadInterval;
+                }
+                break;
+            case FIGHT:
+                if (getBottom() < worldBounds.getBottom()) {
+                    destroy();
+                }
+                break;
         }
     }
 
@@ -57,7 +66,16 @@ public class Enemy extends Ship {
         this.sound = sound;
         setHeightProportion(height);
         this.hp = hp;
+        this.v.set(descentV);
+        state = State.DESCENT;
+    }
 
-        this.v.set(v0);
+    public boolean isBulletCollision(Rect bullet) {
+        return !(
+                bullet.getRight() < getLeft()
+                        || bullet.getLeft() > getRight()
+                        || bullet.getBottom() > getTop()
+                        || bullet.getTop() < pos.y
+        );
     }
 }
