@@ -70,12 +70,12 @@ public class EnemyEmitter {
             if (type < 0.5f) {
                 enemy.set(
                         enemySmallRegions,
-                        enemySmallV,   //  (0, -0.2f)
+                        enemySmallV,
                         bulletRegion,
                         SMALL_BULLET_HEIGHT,
                         SMALL_BULLET_VY,
                         SMALL_BULLET_DAMAGE,
-                        SMALL_RELOAD_INTERVAL,  // SMALL_RELOAD_INTERVAL = 3f;
+                        SMALL_RELOAD_INTERVAL,
                         sound,
                         SMALL_HEIGHT,
                         SMALL_HP
@@ -104,7 +104,7 @@ public class EnemyEmitter {
                         BIG_RELOAD_INTERVAL,   // интервал для пули
                         sound,   // звук для пули
                         BIG_HEIGHT,  // высота корабля
-                        BIG_HP    //
+                        BIG_HP
                 );
             }
             // позиционируем корабль по х

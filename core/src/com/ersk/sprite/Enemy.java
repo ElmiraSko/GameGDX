@@ -10,7 +10,6 @@ import com.ersk.pool.BulletPool;
 public class Enemy extends Ship {
 
     private Vector2 temp = new Vector2(0, -0.3f); // временная скорость
-    private Vector2 buff = new Vector2();
 
     public Enemy(BulletPool bulletPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
@@ -31,7 +30,6 @@ public class Enemy extends Ship {
             }
             pos.mulAdd(v, delta);
         }
-//========================================
         if (getBottom() < worldBounds.getBottom()) {
             destroy();
         }
