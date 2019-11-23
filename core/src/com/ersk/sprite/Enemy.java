@@ -11,7 +11,7 @@ import com.ersk.pool.ExplosionPool;
 
 public class Enemy extends Ship {
 
-    private enum State { DESCENT, FIGHT }
+    private enum State { DESCENT, FIGHT, GAME_OVER }
 
     private State state;
 
@@ -41,6 +41,10 @@ public class Enemy extends Ship {
                     destroy();
                 }
                 break;
+                //== ?
+            case GAME_OVER:
+                super.destroy();
+                bulletPool.removeFreeObjects();
         }
     }
 
@@ -66,16 +70,17 @@ public class Enemy extends Ship {
         this.sound = sound;
         setHeightProportion(height);
         this.hp = hp;
+        //======================
         this.v.set(descentV);
         state = State.DESCENT;
     }
 
-    public boolean isBulletCollision(Rect bullet) {
-        return !(
-                bullet.getRight() < getLeft()
-                        || bullet.getLeft() > getRight()
-                        || bullet.getBottom() > getTop()
-                        || bullet.getTop() < pos.y
+    public boolean isBulletCollision(Rect bullet) {  // пересечение спрайта корабля со спрайтом пули
+        return !( // есле не ..
+                bullet.getRight() < getLeft()     //  пуля левее корабля
+                        || bullet.getLeft() > getRight()  //  пуля правее корабля
+                        || bullet.getBottom() > getTop()  // пуля выше корабля
+                        || bullet.getTop() < pos.y     // пуля ниже чем середина коробля
         );
     }
 }

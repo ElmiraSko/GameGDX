@@ -15,6 +15,7 @@ import com.ersk.pool.ExplosionPool;
 import com.ersk.sprite.Background;
 import com.ersk.sprite.Bullet;
 import com.ersk.sprite.Enemy;
+import com.ersk.sprite.Message;
 import com.ersk.sprite.SpaceShip;
 import com.ersk.sprite.Star;
 import com.ersk.utils.EnemyEmitter;
@@ -25,6 +26,7 @@ import java.util.List;
 public class GameScreen extends BaseScreen {
 
     private static final int STAR_COUNT = 64;
+    public boolean mainShipDestroyed = false;
 
     private Texture bg;
     private TextureAtlas atlas;
@@ -34,6 +36,7 @@ public class GameScreen extends BaseScreen {
     private Background background;
     private Star[] stars;
     private SpaceShip ship;
+    private Message message;
 
     private BulletPool bulletPool;
     private EnemyPool enemyPool;
@@ -59,12 +62,13 @@ public class GameScreen extends BaseScreen {
         enemyEmitter = new EnemyEmitter(enemyPool, atlas, worldBounds);
         music.setLooping(true);
         music.play();
+        message = new Message(new TextureAtlas("textures/mainAtlas.tpack"));
     }
 
     @Override
     public void render(float delta) {
-        update(delta);
-        checkCollisions();
+        update(delta);  // обновились
+        checkCollisions(); // проверка на столкновения
         freeAllDestroyed();
         draw();
     }
@@ -76,8 +80,8 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         ship.resize(worldBounds);
+        message.resize(worldBounds);
     }
-
     @Override
     public void dispose() {
         bg.dispose();
@@ -88,6 +92,7 @@ public class GameScreen extends BaseScreen {
         enemyPool.dispose();
         explosionPool.dispose();
         enemyEmitter.dispose();
+       //=
         super.dispose();
     }
 
@@ -119,39 +124,49 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.update(delta);
         }
+
         ship.update(delta);
+   //     if (!mainShipDestroyed){
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
         explosionPool.updateActiveSprites(delta);
-        enemyEmitter.generate(delta);
+        if (!mainShipDestroyed){ // если гл корабль не уничтожен
+            enemyEmitter.generate(delta);  // продолжаем генерировать врагов
+        }
+        message.update(delta);
     }
 
-    private void checkCollisions() {
-        List<Enemy> enemyList = enemyPool.getActiveObjects();
-        List<Bullet> bulletList = bulletPool.getActiveObjects();
-        for (Enemy enemy : enemyList) {
-            float minDist = enemy.getHalfWidth() + ship.getHalfWidth();
-            if (ship.pos.dst(enemy.pos) < minDist) {
-                ship.damage(enemy.getDamage());
-                enemy.destroy();
+    private void checkCollisions() {  // проверка пересечений спрайтов
+        List<Enemy> enemyList = enemyPool.getActiveObjects(); // список врагов
+        List<Bullet> bulletList = bulletPool.getActiveObjects();  // список пуль
+        for (Enemy enemy : enemyList) {  // для каждого врага
+
+            float minDist = enemy.getHalfWidth() + ship.getHalfWidth(); // минимальная дистанция
+
+            if (ship.pos.dst(enemy.pos) < minDist) {  // если корабли ближе чем дистанция, т.е. спрайты пересеклись
+                ship.damage(enemy.getDamage());  //enemy.getDamage() - урон пули конкретного корабля врага отнимаем у ship
+                enemy.destroy();  // корабль врага убит, вызываем взрыв и отправляем его в список не активных через пулл
+                mainShipDestroyed = ship.isDestroyed();
             }
-            for (Bullet bullet : bulletList) {
-                if (bullet.getOwner() != ship) {
-                    continue;
+
+            for (Bullet bullet : bulletList) {  // спрайт пули из пула, спрайты пуль врагов тоже могут пересекаться
+                if (bullet.getOwner() != ship) { // если пули не принадлежат ship
+                    continue; // продолжаем, но если наоборот, то ...enemy.isBulletCollision(bullet)
                 }
-                if (enemy.isBulletCollision(bullet)) {
-                    enemy.damage(bullet.getDamage());
-                    bullet.destroy();
+                if (enemy.isBulletCollision(bullet)) { // если пересеклись, то
+                    enemy.damage(bullet.getDamage());  // вычитаем жизни
+                    bullet.destroy(); // отправляем в список не активных через пулл
                 }
             }
-        }
-        for (Bullet bullet : bulletList) {
-            if (bullet.getOwner() == ship) {
+        } // конец блока врага
+        for (Bullet bullet : bulletList) {   //
+            if (bullet.getOwner() == ship) {  //
                 continue;
             }
             if (ship.isBulletCollision(bullet)) {
                 ship.damage(bullet.getDamage());
                 bullet.destroy();
+                mainShipDestroyed = ship.isDestroyed(); // получаем значение destroyed глав корабля
             }
         }
     }
@@ -170,9 +185,9 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
-        if (!ship.isDestroyed()) {
+        if (!ship.isDestroyed()) { // если корабль не убит, то рисуем
             ship.draw(batch);
-        }
+        }else message.draw(batch);
         bulletPool.drawActiveSprites(batch);
         enemyPool.drawActiveSprites(batch);
         explosionPool.drawActiveSprites(batch);

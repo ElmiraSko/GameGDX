@@ -18,7 +18,7 @@ public class ExplosionPool extends SpritesPool<Explosion> {
     }
 
     @Override
-    protected Explosion newObject() {
+    protected Explosion newObject() {  // объект взрыв
         return new Explosion(atlas, sound);
     }
 

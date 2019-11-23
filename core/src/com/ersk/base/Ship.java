@@ -39,46 +39,46 @@ public abstract class Ship extends Sprite {
     }
 
     @Override
-    public void update(float delta) {
+    public void update(float delta) {  // стрельба по таймеру
         reloadTimer += delta;
         if (reloadTimer > reloadInterval) {
             reloadTimer = 0f;
             shoot();
         }
-        animateTimer += delta;
+        animateTimer += delta; // переключение вида корабля
         if (animateTimer > animateInterval) {
             frame = 0;
         }
-        pos.mulAdd(v, delta);
+        pos.mulAdd(v, delta);  // изменение позиции корабля, движение
     }
 
 
     @Override
-    public void destroy() {
-        boom();
-        super.destroy();
+    public void destroy() { // взрыв, корабль убит
+        boom();    // строка 80
+        super.destroy(); // destroyed = true;
     }
 
-    public void damage(int damage) {
+    public void damage(int damage) { // для всех кораблей damage-урон, сколько единиц жизни отнимается
         hp -= damage;
-        if (hp <= 0) {
+        if (hp <= 0) { // если количество жизней <=0 то вызываем destroy(); строка 57
             destroy();
         }
-        animateTimer = 0f;
-        frame = 1;
+        animateTimer = 0f; // таймер анимации =0,
+        frame = 1; // второй фрейм корабля, когда он красный
     }
 
-    public int getDamage() {
+    public int getDamage() { // вернуть damage-урон в единицах
         return damage;
     }
 
-    protected void shoot() {
+    protected void shoot() { // стрельба
         sound.play(0.3f);
         Bullet bullet = bulletPool.obtain();
         bullet.set(this, bulletRegion, pos, bulletV, bulletHeight, worldBounds, damage);
     }
-    protected void boom() {
-        Explosion explosion = explosionPool.obtain();
-        explosion.set(pos, getHeight());
+    protected void boom() {  // взрыв
+        Explosion explosion = explosionPool.obtain(); // спрайт взрыва
+        explosion.set(pos, getHeight()); // устанавливаем в позицию корабля, с шириной равной высоте корабля
     }
 }

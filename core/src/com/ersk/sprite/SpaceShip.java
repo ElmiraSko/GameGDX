@@ -31,7 +31,7 @@ public class SpaceShip extends Ship {
         reloadInterval = 0.2f;
         bulletHeight = 0.01f;
         damage = 1;
-        hp = 100;
+        hp = 10;   /// =========================
         bulletV.set(0, 0.5f);
     }
 
@@ -44,15 +44,18 @@ public class SpaceShip extends Ship {
 
     @Override
     public void update(float delta) {
-        super.update(delta);
-        if (getRight() > worldBounds.getRight()) {
-            setRight(worldBounds.getRight());
-            stop();
+        if (!this.isDestroyed()) { // ==
+            super.update(delta);
+            if (getRight() > worldBounds.getRight()) {
+                setRight(worldBounds.getRight());
+                stop();
+            }
+            if (getLeft() < worldBounds.getLeft()) {
+                setLeft(worldBounds.getLeft());
+                stop();
+            }
         }
-        if (getLeft() < worldBounds.getLeft()) {
-            setLeft(worldBounds.getLeft());
-            stop();
-        }
+
     }
 
     public void keyDown(int keycode) {
@@ -130,13 +133,21 @@ public class SpaceShip extends Ship {
         return false;
     }
 
-    public boolean isBulletCollision(Rect bullet) {
+    public boolean isBulletCollision(Rect bullet) {  // пересечение спрайта пули со спрайтом корабля
         return !(
-                bullet.getRight() < getLeft()
-                        || bullet.getLeft() > getRight()
-                        || bullet.getTop() < getBottom()
-                        || bullet.getBottom() > pos.y
+                bullet.getRight() < getLeft() //  пуля левее корабля
+                        || bullet.getLeft() > getRight()   //  пуля правее корабля
+                        || bullet.getTop() < getBottom()    // пуля ниже корабля
+                        || bullet.getBottom() > pos.y      // пуля выше чем середина коробля
         );
+    }
+
+    @Override
+    public void destroy() { // переопред метод
+        super.destroy(); // вызов метода из родителя Ship: 1. boom(); 2. super.destroy(); (а в 2: destroyed = true; т.е. флаг - убит)
+        this.setSize(0,0);
+        this.bulletPool.removeFreeObjects();
+
     }
 
     public void dispose() {
