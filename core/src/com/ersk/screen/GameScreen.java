@@ -1,5 +1,6 @@
 package com.ersk.screen;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,6 +15,7 @@ import com.ersk.pool.EnemyPool;
 import com.ersk.pool.ExplosionPool;
 import com.ersk.sprite.Background;
 import com.ersk.sprite.Bullet;
+import com.ersk.sprite.Button;
 import com.ersk.sprite.Enemy;
 import com.ersk.sprite.Message;
 import com.ersk.sprite.SpaceShip;
@@ -24,6 +26,7 @@ import java.util.List;
 
 
 public class GameScreen extends BaseScreen {
+    private Game game;
 
     private static final int STAR_COUNT = 64;
     public boolean mainShipDestroyed = false;
@@ -37,12 +40,17 @@ public class GameScreen extends BaseScreen {
     private Star[] stars;
     private SpaceShip ship;
     private Message message;
+    private Button button;
 
     private BulletPool bulletPool;
     private EnemyPool enemyPool;
     private ExplosionPool explosionPool;
 
     private EnemyEmitter enemyEmitter;
+
+    public GameScreen(Game game){
+        this.game = game;
+    }
 
     @Override
     public void show() {
@@ -63,6 +71,7 @@ public class GameScreen extends BaseScreen {
         music.setLooping(true);
         music.play();
         message = new Message(new TextureAtlas("textures/mainAtlas.tpack"));
+        button = new Button(new TextureAtlas("textures/mainAtlas.tpack"), message, game);
     }
 
     @Override
@@ -81,6 +90,7 @@ public class GameScreen extends BaseScreen {
         }
         ship.resize(worldBounds);
         message.resize(worldBounds);
+        button.resize(worldBounds);
     }
     @Override
     public void dispose() {
@@ -92,6 +102,7 @@ public class GameScreen extends BaseScreen {
         enemyPool.dispose();
         explosionPool.dispose();
         enemyEmitter.dispose();
+
        //=
         super.dispose();
     }
@@ -111,12 +122,14 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
         ship.touchDown(touch, pointer);
+        button.touchDown(touch, pointer);
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
         ship.touchUp(touch, pointer);
+        button.touchUp(touch, pointer);
         return false;
     }
 
@@ -126,14 +139,15 @@ public class GameScreen extends BaseScreen {
         }
 
         ship.update(delta);
-   //     if (!mainShipDestroyed){
+        if (!mainShipDestroyed){
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
         explosionPool.updateActiveSprites(delta);
-        if (!mainShipDestroyed){ // если гл корабль не уничтожен
+        //if (!mainShipDestroyed){ // если гл корабль не уничтожен
             enemyEmitter.generate(delta);  // продолжаем генерировать врагов
         }
         message.update(delta);
+        button.update(delta);
     }
 
     private void checkCollisions() {  // проверка пересечений спрайтов
@@ -187,10 +201,13 @@ public class GameScreen extends BaseScreen {
         }
         if (!ship.isDestroyed()) { // если корабль не убит, то рисуем
             ship.draw(batch);
-        }else message.draw(batch);
-        bulletPool.drawActiveSprites(batch);
-        enemyPool.drawActiveSprites(batch);
-        explosionPool.drawActiveSprites(batch);
+            bulletPool.drawActiveSprites(batch);
+            enemyPool.drawActiveSprites(batch);
+            explosionPool.drawActiveSprites(batch);
+        }else {
+            message.draw(batch);
+            button.draw(batch);
+        }
         batch.end();
     }
 }
