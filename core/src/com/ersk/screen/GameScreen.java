@@ -29,7 +29,6 @@ public class GameScreen extends BaseScreen {
     private Game game;
 
     private static final int STAR_COUNT = 64;
-    public boolean mainShipDestroyed = false;
 
     private Texture bg;
     private TextureAtlas atlas;
@@ -70,8 +69,8 @@ public class GameScreen extends BaseScreen {
         enemyEmitter = new EnemyEmitter(enemyPool, atlas, worldBounds);
         music.setLooping(true);
         music.play();
-        message = new Message(new TextureAtlas("textures/mainAtlas.tpack"));
-        button = new Button(new TextureAtlas("textures/mainAtlas.tpack"), message, game);
+        message = new Message(atlas);
+        button = new Button(atlas, message, game);
     }
 
     @Override
@@ -137,12 +136,12 @@ public class GameScreen extends BaseScreen {
         }
 
         ship.update(delta);
-        if (!mainShipDestroyed){
+        if (!ship.isDestroyed()){
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
         explosionPool.updateActiveSprites(delta);
-        enemyEmitter.generate(delta);  // продолжаем генерировать врагов
-        }
+        enemyEmitter.generate(delta);
+        } else
         message.update(delta);
         button.update(delta);
     }
@@ -157,19 +156,18 @@ public class GameScreen extends BaseScreen {
             if (ship.pos.dst(enemy.pos) < minDist) {  // если корабли ближе чем дистанция, т.е. спрайты пересеклись
                 ship.damage(enemy.getDamage());  //enemy.getDamage() - урон пули конкретного корабля врага отнимаем у ship
                 enemy.destroy();  // корабль врага убит, вызываем взрыв и отправляем его в список не активных через пулл
-                mainShipDestroyed = ship.isDestroyed();
             }
 
-            for (Bullet bullet : bulletList) {  // спрайт пули из пула, спрайты пуль врагов тоже могут пересекаться
-                if (bullet.getOwner() != ship) { // если пули не принадлежат ship
-                    continue; // продолжаем, но если наоборот, то ...enemy.isBulletCollision(bullet)
+            for (Bullet bullet : bulletList) {
+                if (bullet.getOwner() != ship) {
+                    continue;
                 }
-                if (enemy.isBulletCollision(bullet)) { // если пересеклись, то
-                    enemy.damage(bullet.getDamage());  // вычитаем жизни
-                    bullet.destroy(); // отправляем в список не активных через пулл
+                if (enemy.isBulletCollision(bullet)) {
+                    enemy.damage(bullet.getDamage());
+                    bullet.destroy();
                 }
             }
-        } // конец блока врага
+        }
 
         for (Bullet bullet : bulletList) {
             if (bullet.getOwner() == ship) {
@@ -178,7 +176,6 @@ public class GameScreen extends BaseScreen {
             if (ship.isBulletCollision(bullet)) {
                 ship.damage(bullet.getDamage());
                 bullet.destroy();
-                mainShipDestroyed = ship.isDestroyed(); // получаем значение destroyed глав корабля
             }
         }
     }
@@ -197,7 +194,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
-        if (!ship.isDestroyed()) { // если корабль не убит, то рисуем все
+        if (!ship.isDestroyed()) {
             ship.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);

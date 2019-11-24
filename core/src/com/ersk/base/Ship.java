@@ -68,7 +68,7 @@ public abstract class Ship extends Sprite {
         frame = 1;
     }
 
-    public int getDamage() { // вернуть damage-урон в единицах
+    public int getDamage() {
         return damage;
     }
 
