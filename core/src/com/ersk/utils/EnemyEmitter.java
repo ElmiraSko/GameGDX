@@ -61,12 +61,12 @@ public class EnemyEmitter {
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
     }
 
-    public void generate(float delta) { // каждые несколько секунд генерируется корабль
+    public void generate(float delta) {
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
             Enemy enemy = enemyPool.obtain();
-            float type = (float) Math.random(); // тип зависит от случайного числа type
+            float type = (float) Math.random();
             if (type < 0.5f) {
                 enemy.set(
                         enemySmallRegions,
@@ -95,15 +95,15 @@ public class EnemyEmitter {
                 );
             } else {
                 enemy.set(
-                        enemyBigRegions,  // регион для корабля
-                        enemyBigV,     // скорость корабля enemyBigV
-                        bulletRegion,  // регион для пули
-                        BIG_BULLET_HEIGHT, // размер пули
-                        BIG_BULLET_VY,    //  скорость пули
+                        enemyBigRegions,
+                        enemyBigV,
+                        bulletRegion,
+                        BIG_BULLET_HEIGHT,
+                        BIG_BULLET_VY,
                         BIG_BULLET_DAMAGE,
-                        BIG_RELOAD_INTERVAL,   // интервал для пули
-                        sound,   // звук для пули
-                        BIG_HEIGHT,  // высота корабля
+                        BIG_RELOAD_INTERVAL,
+                        sound,
+                        BIG_HEIGHT,
                         BIG_HP
                 );
             }

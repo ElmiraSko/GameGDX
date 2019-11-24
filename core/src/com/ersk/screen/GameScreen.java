@@ -102,8 +102,6 @@ public class GameScreen extends BaseScreen {
         enemyPool.dispose();
         explosionPool.dispose();
         enemyEmitter.dispose();
-
-       //=
         super.dispose();
     }
 
@@ -143,8 +141,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
         explosionPool.updateActiveSprites(delta);
-        //if (!mainShipDestroyed){ // если гл корабль не уничтожен
-            enemyEmitter.generate(delta);  // продолжаем генерировать врагов
+        enemyEmitter.generate(delta);  // продолжаем генерировать врагов
         }
         message.update(delta);
         button.update(delta);
@@ -173,8 +170,9 @@ public class GameScreen extends BaseScreen {
                 }
             }
         } // конец блока врага
-        for (Bullet bullet : bulletList) {   //
-            if (bullet.getOwner() == ship) {  //
+
+        for (Bullet bullet : bulletList) {
+            if (bullet.getOwner() == ship) {
                 continue;
             }
             if (ship.isBulletCollision(bullet)) {
@@ -199,12 +197,12 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
-        if (!ship.isDestroyed()) { // если корабль не убит, то рисуем
+        if (!ship.isDestroyed()) { // если корабль не убит, то рисуем все
             ship.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
             explosionPool.drawActiveSprites(batch);
-        }else {
+        } else {
             message.draw(batch);
             button.draw(batch);
         }

@@ -49,36 +49,36 @@ public abstract class Ship extends Sprite {
         if (animateTimer > animateInterval) {
             frame = 0;
         }
-        pos.mulAdd(v, delta);  // изменение позиции корабля, движение
+        pos.mulAdd(v, delta);
     }
 
 
     @Override
-    public void destroy() { // взрыв, корабль убит
-        boom();    // строка 80
-        super.destroy(); // destroyed = true;
+    public void destroy() {
+        boom();
+        super.destroy();
     }
 
-    public void damage(int damage) { // для всех кораблей damage-урон, сколько единиц жизни отнимается
+    public void damage(int damage) {
         hp -= damage;
-        if (hp <= 0) { // если количество жизней <=0 то вызываем destroy(); строка 57
+        if (hp <= 0) {
             destroy();
         }
-        animateTimer = 0f; // таймер анимации =0,
-        frame = 1; // второй фрейм корабля, когда он красный
+        animateTimer = 0f;
+        frame = 1;
     }
 
     public int getDamage() { // вернуть damage-урон в единицах
         return damage;
     }
 
-    protected void shoot() { // стрельба
+    protected void shoot() {
         sound.play(0.3f);
         Bullet bullet = bulletPool.obtain();
         bullet.set(this, bulletRegion, pos, bulletV, bulletHeight, worldBounds, damage);
     }
-    protected void boom() {  // взрыв
-        Explosion explosion = explosionPool.obtain(); // спрайт взрыва
-        explosion.set(pos, getHeight()); // устанавливаем в позицию корабля, с шириной равной высоте корабля
+    protected void boom() {
+        Explosion explosion = explosionPool.obtain();
+        explosion.set(pos, getHeight());
     }
 }
