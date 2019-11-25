@@ -134,15 +134,14 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.update(delta);
         }
-
         ship.update(delta);
         if (!ship.isDestroyed()){
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
-        explosionPool.updateActiveSprites(delta);
         enemyEmitter.generate(delta);
         } else
         message.update(delta);
+        explosionPool.updateActiveSprites(delta);
         button.update(delta);
     }
 
@@ -198,11 +197,11 @@ public class GameScreen extends BaseScreen {
             ship.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
-            explosionPool.drawActiveSprites(batch);
         } else {
             message.draw(batch);
             button.draw(batch);
         }
+        explosionPool.drawActiveSprites(batch);
         batch.end();
     }
 }
