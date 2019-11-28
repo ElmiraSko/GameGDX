@@ -7,19 +7,23 @@ import com.ersk.base.Ship;
 import com.ersk.math.Rect;
 import com.ersk.pool.BulletPool;
 import com.ersk.pool.ExplosionPool;
+import com.ersk.pool.ManPool;
 
 
 public class Enemy extends Ship {
 
     private enum State { DESCENT, FIGHT }
-
     private State state;
 
     private Vector2 descentV = new Vector2(0, -0.15f);
 
-    public Enemy(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds) {
+    private ManPool manPool; // пул космонавтов
+    private int level;
+
+    public Enemy(BulletPool bulletPool, ExplosionPool explosionPool, ManPool manPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
+        this.manPool = manPool;
         this.worldBounds = worldBounds;
         this.v.set(v0);
     }
@@ -54,7 +58,8 @@ public class Enemy extends Ship {
             float reloadInterval,
             Sound sound,
             float height,
-            int hp
+            int hp,
+            int level
     ) {
         this.regions = regions;
         this.v0.set(v0);
@@ -66,6 +71,7 @@ public class Enemy extends Ship {
         this.sound = sound;
         setHeightProportion(height);
         this.hp = hp;
+        this.level = level;
         this.v.set(descentV);
         state = State.DESCENT;
     }
@@ -78,4 +84,15 @@ public class Enemy extends Ship {
                         || bullet.getTop() < pos.y
         );
     }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (level > 1){
+            Man man = manPool.obtain();
+            man.pos.set(this.pos);
+        }
+
+    }
+
 }

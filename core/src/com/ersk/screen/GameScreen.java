@@ -8,19 +8,24 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.ersk.base.BaseScreen;
+import com.ersk.base.Font;
 import com.ersk.math.Rect;
 import com.ersk.pool.BulletPool;
 import com.ersk.pool.EnemyPool;
 import com.ersk.pool.ExplosionPool;
+import com.ersk.pool.ManPool;
 import com.ersk.sprite.Background;
 import com.ersk.sprite.Bullet;
-import com.ersk.sprite.Button;
+import com.ersk.sprite.ButtonNewGame;
 import com.ersk.sprite.Enemy;
-import com.ersk.sprite.Message;
+import com.ersk.sprite.Man;
+import com.ersk.sprite.MessageGameOver;
 import com.ersk.sprite.SpaceShip;
 import com.ersk.sprite.Star;
 import com.ersk.utils.EnemyEmitter;
+import com.ersk.utils.KitEmitter;
 
 import java.util.List;
 
@@ -29,23 +34,40 @@ public class GameScreen extends BaseScreen {
     private Game game;
 
     private static final int STAR_COUNT = 64;
+    private static final String SCORE = "Score: ";
+    private static final String HP = "HP: ";
+    private static final String LEVEL = "Level: ";
 
     private Texture bg;
     private TextureAtlas atlas;
+    private Texture kitTexture;
 
     private Music music;
+    private Font font;
+
+    private StringBuilder sbScore;
+    private StringBuilder sbHP;
+    private StringBuilder sbLevel;
+    private int score;
+    private int prevLevel = 1;
 
     private Background background;
     private Star[] stars;
     private SpaceShip ship;
-    private Message message;
-    private Button button;
+    private MessageGameOver messageGameOver;
+    private ButtonNewGame buttonNewGame;
 
     private BulletPool bulletPool;
     private EnemyPool enemyPool;
     private ExplosionPool explosionPool;
+    private ManPool manPool;
+    private KitEmitter kitEmitter;
 
     private EnemyEmitter enemyEmitter;
+
+    private enum State { PLAYING, PAUSE, GAME_OVER }
+    private State state;
+    private State prevState;
 
     public GameScreen(Game game){
         this.game = game;
@@ -55,28 +77,41 @@ public class GameScreen extends BaseScreen {
     public void show() {
         super.show();
         music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));
-        bg = new Texture("textures/bg.png");
+        bg = new Texture("textures/Stars.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+        kitTexture = new Texture("textures/man.png");
+
         stars = new Star[STAR_COUNT];
         for (int i = 0; i < STAR_COUNT; i++) {
             stars[i] = new Star(atlas);
         }
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas);
-        enemyPool = new EnemyPool(worldBounds, bulletPool, explosionPool);
-        ship = new SpaceShip(atlas, bulletPool, explosionPool);
+        manPool = new ManPool(new TextureRegion(kitTexture)); //
+        enemyPool = new EnemyPool(worldBounds, bulletPool, explosionPool, manPool);
         enemyEmitter = new EnemyEmitter(enemyPool, atlas, worldBounds);
+        ship = new SpaceShip(atlas, bulletPool, explosionPool);
+
         music.setLooping(true);
         music.play();
-        message = new Message(atlas);
-        button = new Button(atlas, message, game);
+
+        font = new Font("fonts/font.fnt", "fonts/font.png");
+        font.setFontSize(0.025f);
+        sbScore = new StringBuilder();
+        sbHP = new StringBuilder();
+        sbLevel = new StringBuilder();
+
+        messageGameOver = new MessageGameOver(atlas);
+        buttonNewGame = new ButtonNewGame(atlas, this);
+        state = State.PLAYING;
+        prevState = State.PLAYING;
     }
 
     @Override
     public void render(float delta) {
-        update(delta);  // обновились
-        checkCollisions(); // проверка на столкновения
+        update(delta);
+        checkCollisions();
         freeAllDestroyed();
         draw();
     }
@@ -88,8 +123,9 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         ship.resize(worldBounds);
-        message.resize(worldBounds);
-        button.resize(worldBounds);
+        messageGameOver.resize(worldBounds);
+        buttonNewGame.resize(worldBounds);
+
     }
     @Override
     public void dispose() {
@@ -101,8 +137,22 @@ public class GameScreen extends BaseScreen {
         enemyPool.dispose();
         explosionPool.dispose();
         enemyEmitter.dispose();
+        manPool.dispose();
         super.dispose();
     }
+
+    public void startNewGame(){
+        state = State.PLAYING;
+        prevLevel = 1;
+        score = 0;
+        ship.startNewGame(worldBounds);
+
+        bulletPool.freeAllActiveSprites();
+        enemyPool.freeAllActiveSprites();
+        explosionPool.freeAllActiveSprites();
+        manPool.freeAllActiveSprites();
+    }
+
 
     @Override
     public boolean keyDown(int keycode) {
@@ -118,43 +168,73 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        ship.touchDown(touch, pointer);
-        button.touchDown(touch, pointer);
+        if (state == State.PLAYING) {
+            ship.touchDown(touch, pointer);
+        } else if (state == State.GAME_OVER) {
+            buttonNewGame.touchDown(touch, pointer);
+        }
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        ship.touchUp(touch, pointer);
-        button.touchUp(touch, pointer);
+        if (state == State.PLAYING) {
+            ship.touchUp(touch, pointer);
+        } else if (state == State.GAME_OVER) {
+            buttonNewGame.touchUp(touch, pointer);
+        }
         return false;
+    }
+
+    @Override
+    public void pause() {
+        prevState = state;
+        state = State.PAUSE;
+        music.pause();
+    }
+
+    @Override
+    public void resume() {
+        state = prevState;
+        music.play();
     }
 
     private void update(float delta) {
         for (Star star : stars) {
             star.update(delta);
         }
-        ship.update(delta);
-        if (!ship.isDestroyed()){
-        bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(delta);
-        enemyEmitter.generate(delta);
-        } else
-        message.update(delta);
         explosionPool.updateActiveSprites(delta);
-        button.update(delta);
+        if (state == State.PLAYING){
+            ship.update(delta);
+            bulletPool.updateActiveSprites(delta);
+            enemyPool.updateActiveSprites(delta);
+            enemyEmitter.generate(delta, score);
+            manPool.updateActiveSprites(delta);
+        }
+        if (prevLevel < enemyEmitter.getLevel()){ // если изменился уровень с 1 на ...
+            prevLevel = enemyEmitter.getLevel();
+            ship.setHp(ship.getHp() + 10);
+        }
     }
 
-    private void checkCollisions() {  // проверка пересечений спрайтов
-        List<Enemy> enemyList = enemyPool.getActiveObjects(); // список врагов
-        List<Bullet> bulletList = bulletPool.getActiveObjects();  // список пуль
-        for (Enemy enemy : enemyList) {  // для каждого врага
+    private void checkCollisions() {
+        if (state != State.PLAYING){
+            return;
+        }
+        List<Enemy> enemyList = enemyPool.getActiveObjects();
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
+        List<Man> manList = manPool.getActiveObjects();
 
-            float minDist = enemy.getHalfWidth() + ship.getHalfWidth(); // минимальная дистанция
+        for (Enemy enemy : enemyList) {
+            float minDist = enemy.getHalfWidth() + ship.getHalfWidth();
+            if (ship.pos.dst(enemy.pos) < minDist) {
+                ship.damage(enemy.getDamage());
+                enemy.destroy();
+                score++;
 
-            if (ship.pos.dst(enemy.pos) < minDist) {  // если корабли ближе чем дистанция, т.е. спрайты пересеклись
-                ship.damage(enemy.getDamage());  //enemy.getDamage() - урон пули конкретного корабля врага отнимаем у ship
-                enemy.destroy();  // корабль врага убит, вызываем взрыв и отправляем его в список не активных через пулл
+                if (ship.isDestroyed()){
+                    state = State.GAME_OVER;
+                }
             }
 
             for (Bullet bullet : bulletList) {
@@ -163,6 +243,9 @@ public class GameScreen extends BaseScreen {
                 }
                 if (enemy.isBulletCollision(bullet)) {
                     enemy.damage(bullet.getDamage());
+                    if (enemy.isDestroyed()){
+                        score++;
+                    }
                     bullet.destroy();
                 }
             }
@@ -175,6 +258,16 @@ public class GameScreen extends BaseScreen {
             if (ship.isBulletCollision(bullet)) {
                 ship.damage(bullet.getDamage());
                 bullet.destroy();
+                if (ship.isDestroyed()){
+                    state = State.GAME_OVER;
+                }
+            }
+        }
+
+        for (Man man: manList) { // подбираем космонавта, получаем бонус
+            if (man.isShipCollision(ship)){
+                ship.setHp(ship.getHp() + man.bonusHP(enemyEmitter.getLevel()));
+                man.destroy();
             }
         }
     }
@@ -183,6 +276,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
         explosionPool.freeAllDestroyedActiveSprites();
+        manPool.freeAllDestroyedActiveSprites();
     }
 
     private void draw() {
@@ -193,15 +287,34 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
-        if (!ship.isDestroyed()) {
+        explosionPool.drawActiveSprites(batch);
+        if (state == State.PLAYING) {
             ship.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
-        } else {
-            message.draw(batch);
-            button.draw(batch);
-        }
-        explosionPool.drawActiveSprites(batch);
+            manPool.drawActiveSprites(batch);
+        } else if (state == State.GAME_OVER){
+            messageGameOver.draw(batch);
+            buttonNewGame.draw(batch);
+            }
+        printInfo();
         batch.end();
     }
+
+    private void printInfo(){
+        float posY = worldBounds.getTop()- 0.01f;
+
+        float ScorePosX = worldBounds.getLeft() + 0.01f;
+        sbScore.setLength(0);
+        font.draw(batch, sbScore.append(SCORE).append(score), ScorePosX, posY);
+
+        float HpPosX = worldBounds.pos.x;
+        sbHP.setLength(0);
+        font.draw(batch, sbHP.append(HP).append(ship.getHp()), HpPosX, posY, Align.center);
+
+        float LevelPosX = worldBounds.getRight() - 0.01f;
+        sbLevel.setLength(0);
+        font.draw(batch, sbLevel.append(LEVEL).append(enemyEmitter.getLevel()), LevelPosX, posY, Align.right);
+    }
+
 }

@@ -51,6 +51,8 @@ public class EnemyEmitter {
 
     private Sound sound;
 
+    private int level = 1;
+
     public EnemyEmitter(EnemyPool enemyPool, TextureAtlas atlas, Rect worldBounds) {
         this.enemyPool = enemyPool;
         this.worldBounds = worldBounds;
@@ -61,7 +63,8 @@ public class EnemyEmitter {
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
     }
 
-    public void generate(float delta) {
+    public void generate(float delta, int score) {
+        level = score / 10 + 1;
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
@@ -74,11 +77,12 @@ public class EnemyEmitter {
                         bulletRegion,
                         SMALL_BULLET_HEIGHT,
                         SMALL_BULLET_VY,
-                        SMALL_BULLET_DAMAGE,
+                        SMALL_BULLET_DAMAGE * level,
                         SMALL_RELOAD_INTERVAL,
                         sound,
                         SMALL_HEIGHT,
-                        SMALL_HP
+                        SMALL_HP,
+                        getLevel()
                 );
             } else if (type < 0.8f) {
                 enemy.set(
@@ -87,11 +91,12 @@ public class EnemyEmitter {
                         bulletRegion,
                         MIDDLE_BULLET_HEIGHT,
                         MIDDLE_BULLET_VY,
-                        MIDDLE_BULLET_DAMAGE,
+                        MIDDLE_BULLET_DAMAGE * level,
                         MIDDLE_RELOAD_INTERVAL,
                         sound,
                         MIDDLE_HEIGHT,
-                        MIDDLE_HP
+                        MIDDLE_HP,
+                        getLevel()
                 );
             } else {
                 enemy.set(
@@ -100,18 +105,27 @@ public class EnemyEmitter {
                         bulletRegion,
                         BIG_BULLET_HEIGHT,
                         BIG_BULLET_VY,
-                        BIG_BULLET_DAMAGE,
+                        BIG_BULLET_DAMAGE * level,
                         BIG_RELOAD_INTERVAL,
                         sound,
                         BIG_HEIGHT,
-                        BIG_HP
+                        BIG_HP,
+                        getLevel()
                 );
             }
-            // позиционируем корабль по х
+            // позиция по х
             enemy.pos.x = Rnd.nextFloat(worldBounds.getLeft() + enemy.getHalfWidth(), worldBounds.getRight() - enemy.getHalfWidth());
-            // позиционируем по у
+            // позиция по у
             enemy.setBottom(worldBounds.getTop());
         }
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public void dispose() {

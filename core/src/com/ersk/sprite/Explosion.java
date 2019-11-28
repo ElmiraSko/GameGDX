@@ -7,7 +7,7 @@ import com.ersk.base.Sprite;
 
 public class Explosion extends Sprite { // общий шаблон для спрайта взрыва
 
-    private float animateInterval = 0.01f;
+    private float animateInterval = 0.02f;
     private float animateTimer;
 
     private Sound sound;

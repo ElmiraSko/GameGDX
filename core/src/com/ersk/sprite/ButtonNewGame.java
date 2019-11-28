@@ -6,25 +6,24 @@ import com.ersk.base.ScaledTouchUpButton;
 import com.ersk.math.Rect;
 import com.ersk.screen.GameScreen;
 
-public class Button extends ScaledTouchUpButton {
+public class ButtonNewGame extends ScaledTouchUpButton {
 
-    private Game game;
+    private GameScreen gameScreen;
 
-    public Button(TextureAtlas atlas, Message message, Game game){
+    public ButtonNewGame(TextureAtlas atlas, GameScreen gameScreen){
         super(atlas.findRegion("button_new_game"));
-        this.game = game;
-        setHeightProportion(0.03f);
-        pos.set(message.pos.x, message.pos.y - message.getHeight()*1.5f);
+        this.gameScreen = gameScreen;
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        super.resize(worldBounds);
+        setHeightProportion(0.03f);
+        setTop(-0.05f);
     }
 
     @Override
     public void action() {
-        game.setScreen(new GameScreen(game));
+        gameScreen.startNewGame();
     }
 }
 

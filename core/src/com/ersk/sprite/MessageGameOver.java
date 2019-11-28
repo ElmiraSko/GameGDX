@@ -4,15 +4,14 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.ersk.base.Sprite;
 import com.ersk.math.Rect;
 
-public class Message extends Sprite {
+public class MessageGameOver extends Sprite {
 
-    public Message(TextureAtlas atlas){
+    public MessageGameOver(TextureAtlas atlas){
         super(atlas.findRegion("message_game_over"));
-        setHeightProportion(0.05f);
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        super.resize(worldBounds);
+        setHeightProportion(0.05f);
     }
 }

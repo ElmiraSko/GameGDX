@@ -62,6 +62,7 @@ public abstract class Ship extends Sprite {
     public void damage(int damage) {
         hp -= damage;
         if (hp <= 0) {
+            hp = 0;
             destroy();
         }
         animateTimer = 0f;
@@ -70,6 +71,14 @@ public abstract class Ship extends Sprite {
 
     public int getDamage() {
         return damage;
+    }
+
+    public int getHp(){
+        return hp;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
     }
 
     protected void shoot() {
@@ -81,4 +90,5 @@ public abstract class Ship extends Sprite {
         Explosion explosion = explosionPool.obtain();
         explosion.set(pos, getHeight());
     }
+
 }
