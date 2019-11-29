@@ -22,6 +22,8 @@ public class SpaceShip extends Ship {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
+    private Pause pauseButton;
+
     public SpaceShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
@@ -36,6 +38,9 @@ public class SpaceShip extends Ship {
         bulletV.set(0, 0.5f);
     }
 
+    public  void bindButton(Pause pauseButton){ // для получения кнопки pause
+        this.pauseButton = pauseButton;
+    }
     public void startNewGame(Rect worldBounds){
         pressedLeft = false;
         pressedRight = false;
@@ -111,13 +116,17 @@ public class SpaceShip extends Ship {
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
         if (touch.x < worldBounds.pos.x) {
-            if (leftPointer != INVALID_POINTER) return false;
-            leftPointer = pointer;
-            moveLeft();
+            if (!pauseButton.isMe(touch)) {
+                if (leftPointer != INVALID_POINTER) return false;
+                leftPointer = pointer;
+                moveLeft();
+            }
         } else {
-            if (rightPointer != INVALID_POINTER) return false;
-            rightPointer = pointer;
-            moveRight();
+            if (!pauseButton.isMe(touch)) {
+                if (rightPointer != INVALID_POINTER) return false;
+                rightPointer = pointer;
+                moveRight();
+            }
         }
         return false;
     }
