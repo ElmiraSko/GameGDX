@@ -42,7 +42,7 @@ public class Enemy extends Ship {
                 break;
             case FIGHT:
                 if (getTop() < worldBounds.getBottom()) {
-                    destroyed = true; //
+                    destroyed = true;
                 }
                 break;
         }
